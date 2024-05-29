@@ -1,0 +1,47 @@
+name: Generate terraform docs
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  terraform-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+
+  # terraform-validate:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: hashicorp/setup-terraform@v3
+  #   - name: Terraform Init
+  #     working-directory: ./examples/
+  #     id: init
+  #     run: terraform init
+  #   - name: Terraform Validate
+  #     working-directory: ./examples/
+  #     id: validate
+  #     run: terraform validate -no-color
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      # https://github.com/terraform-docs/gh-actions
+      - name: Render terraform docs inside the README.md and push changes back to PR branch
+        uses: terraform-docs/gh-actions@v1.0.0
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
