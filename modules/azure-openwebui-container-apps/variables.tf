@@ -136,10 +136,10 @@ variable "environment" {
   }
 }
 
-variable "anything_llm" {
-  description = "Configurations for the Anything LLM Container App."
+variable "openwebui" {
+  description = "Configurations for the Open WebUI Container App."
   type = object({
-    # https://github.com/Mintplex-Labs/anything-llm/blob/master/server/.env.example
+    # https://docs.openwebui.com/getting-started/env-configuration
     config = optional(object({
 
     }), {})
@@ -173,40 +173,40 @@ variable "anything_llm" {
 
   # container validation
   validation {
-    condition     = var.anything_llm.container.image != ""
+    condition     = var.openwebui.container.image != ""
     error_message = "container.image cannot be null or empty"
   }
 
   # regitries validation
   validation {
-    condition     = alltrue([for r in var.anything_llm.registries : r.server != null && r.server != ""])
-    error_message = "server entries in anything_llm.registries cannot be null or empty"
+    condition     = alltrue([for r in var.openwebui.registries : r.server != null && r.server != ""])
+    error_message = "server entries in openwebui.registries cannot be null or empty"
   }
 
   validation {
-    condition     = alltrue([for r in var.anything_llm.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
-    error_message = "identity_resource_id entries in anything_llm.registries cannot be null or empty"
+    condition     = alltrue([for r in var.openwebui.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in openwebui.registries cannot be null or empty"
   }
 
   # replicas validation
   validation {
-    condition     = var.anything_llm.replicas.max >= 1 && var.anything_llm.replicas.max <= 300
-    error_message = "anything_llm.replicas.max must be between 1 and 300 (inclusive)"
+    condition     = var.openwebui.replicas.max >= 1 && var.openwebui.replicas.max <= 300
+    error_message = "openwebui.replicas.max must be between 1 and 300 (inclusive)"
   }
 
   validation {
-    condition     = var.anything_llm.replicas.min >= 0 && var.anything_llm.replicas.min <= 300
-    error_message = "anything_llm.replicas.max must be between 0 and 300 (inclusive)"
+    condition     = var.openwebui.replicas.min >= 0 && var.openwebui.replicas.min <= 300
+    error_message = "openwebui.replicas.max must be between 0 and 300 (inclusive)"
   }
 
   validation {
-    condition     = var.anything_llm.replicas.max >= var.anything_llm.replicas.min
-    error_message = "var.anything_llm.replicas.max must be larger or equal to var.anything_llm.replicas.min"
+    condition     = var.openwebui.replicas.max >= var.openwebui.replicas.min
+    error_message = "var.openwebui.replicas.max must be larger or equal to var.openwebui.replicas.min"
   }
 
   # workload_profile_name validation
   validation {
-    condition     = var.anything_llm.workload_profile_name != ""
-    error_message = "anything_llm.workload_profile_name cannot be empty"
+    condition     = var.openwebui.workload_profile_name != ""
+    error_message = "openwebui.workload_profile_name cannot be empty"
   }
 }
