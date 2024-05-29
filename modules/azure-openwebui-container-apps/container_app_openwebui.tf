@@ -56,60 +56,15 @@ resource "azurerm_container_app" "openwebui" {
 
   template {
     container {
-      name   = "anything-llm"
+      name   = "openwebui"
       image  = var.openwebui.container.image
       cpu    = var.openwebui.container.cpu
       memory = var.openwebui.container.memory
 
-      # command = [
-      #   "/bin/bash",
-      #   "-c",
-      #   <<-EOC
-      #   set -x -e
-      #   sleep 3
-      #   echo "AWS_REGION: $AWS_REGION"
-      #   echo "SERVER_PORT: $SERVER_PORT"
-      #   echo "NODE_ENV: $NODE_ENV"
-      #   echo "STORAGE_DIR: $STORAGE_DIR"
-      #   {
-      #     cd /app/server/ &&
-      #       npx prisma generate --schema=./prisma/schema.prisma &&
-      #       npx prisma migrate deploy --schema=./prisma/schema.prisma &&
-      #       node /app/server/index.js
-      #     echo "Server process exited with status $?"
-      #   } &
-      #   {
-      #     node /app/collector/index.js
-      #     echo "Collector process exited with status $?"
-      #   } &
-      #   wait -n
-      #   exit $?
-      #   EOC
-      #   ,
-      # ]
-
-      # liveness_probe {
-      #   path = "/v1/api/health"
-      #   port = 3001
-      #   # termination_grace_period_seconds = 15
-      #   transport = "HTTP"
-      # }
-
-      # readiness_probe {
-      #   path      = "/v1/api/health"
-      #   port      = 3001
-      #   transport = "HTTP"
-      # }
-
-      # env {
-      #   name = "NODE_ENV"
-      #   value = "production"
-      # }
-
-      # env {
-      #   name  = "SERVER_PORT"
-      #   value = 3001
-      # }
+      env {
+        name  = "OLLAMA_BASE_URLS"
+        value = ""
+      }
     }
 
     max_replicas = var.openwebui.replicas.max

@@ -3,7 +3,6 @@ locals {
     configurationSource = "https://github.com/ssc-dsai-iac/azure-openwebui-terraform"
   }
 
-
   # The standardized naming convention template to be used for naming resources.
   # It can be used in the following manner:
   # format(local.standardized_name_template, <deviceType>, <userDefinedExtension>, <suffix>)
