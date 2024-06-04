@@ -136,6 +136,90 @@ variable "environment" {
   }
 }
 
+variable "oauth_proxy" {
+  description = "Configurations for the oauth-proxy Container App."
+  type = object({
+    config = object({
+      azure_tenant_id      = string
+      client_id            = string
+      client_secret        = string
+      cookie_name          = optional(string, "__Secure-OpenWebUI")
+      http_address         = optional(string, "0.0.0.0:4180")
+      oidc_issuer_url      = string
+      provider             = optional(string, "azure")
+      redirect_url         = optional(string, "https://$(CONTAINER_APP_NAME).$(CONTAINER_APP_ENV_DNS_SUFFIX)/oauth2/callback")
+      reverse_proxy        = optional(bool, true)
+      skip_provider_button = optional(bool, true)
+    })
+
+    container = optional(object({
+      image  = optional(string, "quay.io/oauth2-proxy/oauth2-proxy:v7.6.0")
+      cpu    = optional(number, 0.5)
+      memory = optional(string, "1Gi")
+    }), {})
+
+    identities = optional(object({
+      enable_system_assigned_identity = optional(bool, false)
+      user_managed_identity_ids       = optional(list(string), [])
+    }), {})
+
+    registries = optional(list(object({
+      server               = string
+      identity_resource_id = string
+    })), [])
+
+    replicas = optional(object({
+      max = optional(number, 1)
+      min = optional(number, 1)
+    }), {})
+
+    workload_profile_name = optional(string, "Consumption")
+  })
+
+  # Config validation
+  # TODO:
+
+
+  # container validation
+  validation {
+    condition     = var.oauth_proxy.container.image != ""
+    error_message = "container.image cannot be null or empty"
+  }
+
+  # regitries validation
+  validation {
+    condition     = alltrue([for r in var.oauth_proxy.registries : r.server != null && r.server != ""])
+    error_message = "server entries in oauth_proxy.registries cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for r in var.oauth_proxy.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in oauth_proxy.registries cannot be null or empty"
+  }
+
+  # replicas validation
+  validation {
+    condition     = var.oauth_proxy.replicas.max >= 1 && var.oauth_proxy.replicas.max <= 300
+    error_message = "oauth_proxy.replicas.max must be between 1 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.oauth_proxy.replicas.min >= 0 && var.oauth_proxy.replicas.min <= 300
+    error_message = "oauth_proxy.replicas.max must be between 0 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.oauth_proxy.replicas.max >= var.oauth_proxy.replicas.min
+    error_message = "var.oauth_proxy.replicas.max must be larger or equal to var.oauth_proxy.replicas.min"
+  }
+
+  # workload_profile_name validation
+  validation {
+    condition     = var.oauth_proxy.workload_profile_name != ""
+    error_message = "oauth_proxy.workload_profile_name cannot be empty"
+  }
+}
+
 variable "openwebui" {
   description = "Configurations for the Open WebUI Container App."
   type = object({
@@ -145,7 +229,7 @@ variable "openwebui" {
     }), {})
 
     container = optional(object({
-      image  = optional(string, "docker.io/mintplexlabs/anythingllm:master")
+      image  = optional(string, "ghcr.io/open-webui/open-webui:0.2.4")
       cpu    = optional(number, 1)
       memory = optional(string, "2Gi")
     }), {})
@@ -208,5 +292,105 @@ variable "openwebui" {
   validation {
     condition     = var.openwebui.workload_profile_name != ""
     error_message = "openwebui.workload_profile_name cannot be empty"
+  }
+}
+
+variable "ollama" {
+  description = "Configurations for the Ollama Container App."
+  type = object({
+    config = object({
+      debug             = optional(number, 0)
+      flash_attention   = optional(bool, false)
+      host              = optional(string, "0.0.0.0:11434")
+      keep_alive        = optional(string, "5m")
+      llm_library       = optional(string, "")
+      max_loaded_models = optional(number, 1)
+      max_queue         = optional(number, 0)
+      max_vram          = optional(number, 0)
+      models            = optional(string, "")
+      no_history        = optional(string, "") # Non-empty string will enable
+      no_prune          = optional(string, "") # Non-empty string will enable
+      num_parallel      = optional(number, 1)
+      origins = optional(list(string), [
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://0.0.0.0",
+        "https://localhost",
+        "https://127.0.0.1",
+        "https://0.0.0.0",
+      ])
+      runners_dir = optional(string, "")
+      tmpdir      = optional(string, "")
+    })
+
+    container = object({
+      image  = optional(string, "docker.io/ollama/ollama:0.1.39")
+      cpu    = optional(number, 1)
+      memory = optional(string, "2Gi")
+    })
+
+    identities = optional(object({
+      enable_system_assigned_identity = optional(bool, false)
+      user_managed_identity_ids       = optional(list(string), [])
+    }), {})
+
+    registries = optional(list(object({
+      server               = string
+      identity_resource_id = string
+    })), [])
+
+    replicas = optional(object({
+      max = optional(number, 1)
+      min = optional(number, 1)
+    }), {})
+
+    workload_profile_name = optional(string, "Consumption")
+  })
+
+  # Config validation
+  validation {
+    condition     = var.ollama.config != null
+    error_message = "ollama.config cannot be null"
+  }
+
+  # TODO: create validation rules.
+
+  # container validation
+  validation {
+    condition     = var.ollama.container.image != null && var.ollama.container.image != ""
+    error_message = "container.image cannot be null or empty"
+  }
+
+  # registries validation
+  validation {
+    condition     = alltrue([for r in var.ollama.registries : r.server != null && r.server != ""])
+    error_message = "server entries in ollama.registries cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for r in var.ollama.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in ollama.registries cannot be null or empty"
+  }
+
+  # replicas validation
+  validation {
+    condition     = var.ollama.replicas.max >= 1 && var.ollama.replicas.max <= 300
+    error_message = "ollama.replicas.max must be between 1 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.ollama.replicas.min >= 0 && var.ollama.replicas.min <= 300
+    error_message = "ollama.replicas.max must be between 0 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.ollama.replicas.max >= var.ollama.replicas.min
+    error_message = "var.ollama.replicas.max must be larger or equal to var.ollama.replicas.min"
+  }
+
+  # workload_profile_name validation
+  validation {
+    condition     = var.ollama.workload_profile_name != ""
+    error_message = "ollama.workload_profile_name cannot be empty"
   }
 }

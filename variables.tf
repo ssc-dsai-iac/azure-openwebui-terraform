@@ -35,3 +35,8 @@ variable "naming" {
     error_message = "naming.user_defined cannot be null or empty"
   }
 }
+
+variable "oauth2_proxy_client_secret" {
+  type      = string
+  sensitive = true
+}

@@ -21,4 +21,6 @@ resource "azurerm_container_app" "debug" {
       ]
     }
   }
+
+  tags = local.tags
 }

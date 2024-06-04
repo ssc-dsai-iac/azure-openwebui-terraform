@@ -34,7 +34,7 @@ resource "azurerm_container_app" "openwebui" {
   ingress {
     allow_insecure_connections = false
     external_enabled           = true
-    target_port                = 3001
+    target_port                = 8080
 
     # Required but only applies if `revision_mode` is `Multiple`.
     traffic_weight {
@@ -62,9 +62,44 @@ resource "azurerm_container_app" "openwebui" {
       memory = var.openwebui.container.memory
 
       env {
-        name  = "OLLAMA_BASE_URLS"
-        value = ""
+        name  = "CUSTOM_NAME"
+        value = "CANChatUI"
       }
+
+      env {
+        name = "DEFAULT_MODELS"
+        value = "gemma:2b"
+      }
+
+      env {
+        name  = "ENV"
+        value = "dev"
+      }
+
+      env {
+        name  = "ENABLE_COMMUNITY_SHARING"
+        value = "false"
+      }
+
+      # env {
+      #   name = "ENABLE_MODEL_FILTER"
+      #   value = true
+      # }
+
+      env {
+        name  = "OLLAMA_BASE_URLS"
+        value = "http://${azurerm_container_app.ollama.name}"
+      }
+
+      env {
+        name  = "WEBUI_AUTH_TRUSTED_EMAIL_HEADER"
+        value = "X-Forwarded-Email"
+      }
+
+      # liveness_probe {
+      #   path = "/"
+
+      # }
     }
 
     max_replicas = var.openwebui.replicas.max

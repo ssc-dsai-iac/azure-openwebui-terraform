@@ -1,5 +1,5 @@
 provider "azurerm" {
-  storage_use_azuread = true
+  subscription_id = "580c0ee7-91da-497a-b61b-1a12caecdd19"
   features {
 
   }
