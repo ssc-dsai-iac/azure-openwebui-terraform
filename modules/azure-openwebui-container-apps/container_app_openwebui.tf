@@ -142,18 +142,15 @@ resource "azurerm_container_app" "openwebui" {
         transport = "HTTP"
       }
 
-<<<<<<< HEAD
-      # }
-
-      volume_mounts {
-        name = azurerm_container_app_environment_storage.openwebui.name
-        path = local.openwebui_data_directory
-=======
       readiness_probe {
         path      = "/health"
         port      = 8080
         transport = "HTTP"
->>>>>>> b85480f (feat: add probes and fmt.)
+      }
+
+      volume_mounts {
+        name = azurerm_container_app_environment_storage.openwebui.name
+        path = local.openwebui_data_directory
       }
     }
 
