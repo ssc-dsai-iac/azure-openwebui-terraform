@@ -122,7 +122,7 @@ resource "azurerm_container_app" "oauth_proxy" {
       }
 
       env {
-        name = "OAUTH2_PROXY_PASS_HOST_HEADER"
+        name  = "OAUTH2_PROXY_PASS_HOST_HEADER"
         value = false
       }
 
@@ -152,7 +152,7 @@ resource "azurerm_container_app" "oauth_proxy" {
       }
 
       env {
-        name = "OAUTH2_PROXY_UPSTREAMS"
+        name  = "OAUTH2_PROXY_UPSTREAMS"
         value = "http://${azurerm_container_app.openwebui.name}"
         # value = "https://${azurerm_container_app.ollama.name}"
         # value = "static://222"
