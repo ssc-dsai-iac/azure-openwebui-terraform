@@ -92,6 +92,11 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
+        name = "OPENAI_API_BASE_URL"
+        value = "http://${azurerm_container_app.litellm.name}"
+      }
+
+      env {
         name  = "WEBUI_AUTH_TRUSTED_EMAIL_HEADER"
         value = "X-Forwarded-Email"
       }
