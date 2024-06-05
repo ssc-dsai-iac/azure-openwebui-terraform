@@ -6,6 +6,15 @@ locals {
     max_retries = 3
     timeout     = 5
   }
+
+  canchat_db_admins = [for admin in data.azuread_users.canchat_admins.users :
+    {
+      tenant_id      = data.azurerm_client_config.current.tenant_id
+      object_id      = admin.object_id
+      principal_name = admin.user_principal_name
+      principal_type = "User"
+    }
+  ]
 }
 
 module "openwebui" {
@@ -22,6 +31,12 @@ module "openwebui" {
     #   name = "test"
     #   type = "D4"
     # }]
+  }
+
+  database = {
+    ad_admins      = local.canchat_db_admins
+    firewall_rules = []
+    tenant_id      = data.azurerm_client_config.current.tenant_id
   }
 
   litellm = {

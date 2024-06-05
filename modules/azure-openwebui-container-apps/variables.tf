@@ -136,6 +136,65 @@ variable "environment" {
   }
 }
 
+variable "database" {
+  description = "Configures the PostgreSQL database which backs OpenWebUI."
+  type = object({
+    ad_admins = optional(list(object({
+      tenant_id      = string
+      object_id      = string
+      principal_name = string
+      principal_type = string
+    })), [])
+    firewall_rules = optional(list(object({
+      name             = optional(string, "")
+      start_ip_address = string
+      end_ip_address   = string
+    })), [])
+    sku_name   = optional(string, "B_Standard_B1ms")
+    storage_mb = optional(number, 32768)
+    tenant_id  = optional(string, null)
+    version    = optional(number, 16)
+    zone       = optional(number, 1)
+  })
+
+  default = {}
+
+  validation {
+    condition     = alltrue([for admin in var.database.ad_admins : admin.principal_type != null ? contains(["Group", "ServicePrincipal", "User"], admin.principal_type) : false])
+    error_message = "database.ad_admins.principal_type must be one of ${format("%v", ["Group", "ServicePrincipal", "User"])}"
+  }
+
+  validation {
+    condition     = alltrue([for admin in var.database.ad_admins : admin.tenant_id != null && admin.tenant_id != ""])
+    error_message = "database.ad_admins.tenant_id cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for admin in var.database.ad_admins : admin.object_id != null && admin.object_id != ""])
+    error_message = "database.ad_admins.object_id cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for admin in var.database.ad_admins : admin.principal_name != null && admin.principal_name != ""])
+    error_message = "database.ad_admins.principal_name cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for rule in var.database.firewall_rules : rule.start_ip_address != null && rule.start_ip_address != ""])
+    error_message = "database.firewall_rules.start_ip_address cannot be null or empty."
+  }
+
+  validation {
+    condition     = alltrue([for rule in var.database.firewall_rules : rule.end_ip_address != null && rule.end_ip_address != ""])
+    error_message = "database.firewall_rules.end_ip_address cannot be null or empty."
+  }
+
+  validation {
+    condition     = contains(range(11, 16 + 1), var.database.version)
+    error_message = "database.version must be one of ${format("%v", range(11, 16 + 1))}"
+  }
+}
+
 variable "litellm" {
   description = "Configurations for the CanChat Container App."
   type = object({
