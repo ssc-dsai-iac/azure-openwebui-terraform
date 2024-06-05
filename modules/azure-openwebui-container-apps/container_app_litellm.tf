@@ -50,6 +50,11 @@ resource "azurerm_container_app" "litellm" {
     }
   }
 
+  secret {
+    name = "master-key"
+    value = random_password.litellm_master_key.result
+  }
+
   tags = local.tags
 
   dynamic "secret" {
@@ -77,6 +82,11 @@ resource "azurerm_container_app" "litellm" {
       env {
         name  = "__LITELLM_CONFIG_MD5"
         value = md5(local_file.litellm_config.content)
+      }
+
+      env {
+        name = "LITELLM_MASTER_KEY"
+        secret_name = "master-key"
       }
 
       dynamic "env" {
@@ -137,6 +147,11 @@ resource "azurerm_container_app" "litellm" {
 resource "local_file" "litellm_config" {
   filename = "${path.module}/generated_configs/litellm_config.json"
   content  = jsonencode(var.litellm.config)
+}
+
+resource "random_password" "litellm_master_key" {
+  length  = 32
+  special = false
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

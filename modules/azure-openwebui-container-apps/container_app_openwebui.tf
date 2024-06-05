@@ -57,6 +57,11 @@ resource "azurerm_container_app" "openwebui" {
     value = "postgresql://${azurerm_postgresql_flexible_server.this.administrator_login}:${azurerm_postgresql_flexible_server.this.administrator_password}@${azurerm_postgresql_flexible_server.this.fqdn}:5432/${azurerm_postgresql_flexible_server_database.openwebui.name}?sslmode=require"
   }
 
+  secret {
+    name = "openai-api-key"
+    value = random_password.litellm_master_key.result
+  }
+
   tags = local.tags
 
   template {
@@ -104,6 +109,11 @@ resource "azurerm_container_app" "openwebui" {
       env {
         name  = "OPENAI_API_BASE_URL"
         value = "http://${azurerm_container_app.litellm.name}"
+      }
+
+      env {
+        name  = "OPENAI_API_KEY"
+        secret_name = "openai-api-key"
       }
 
       env {
