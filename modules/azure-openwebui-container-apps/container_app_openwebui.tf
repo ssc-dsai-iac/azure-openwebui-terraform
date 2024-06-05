@@ -1,4 +1,6 @@
-locals {}
+locals {
+  openwebui_data_directory = "/data"
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ContainerApp
@@ -76,6 +78,14 @@ resource "azurerm_container_app" "openwebui" {
         value = "CANChatUI"
       }
 
+      # TODO: When using the StorageAccount for persistence, the app freezes.
+      # Thought it was an issue with with the inability to create symlinks but doesn't seem to be the case.
+      # env {
+      #   name  = "DATA_DIR"
+      #   value = local.openwebui_data_directory
+      #   # value = "./data"
+      # }
+
       env {
         name        = "DATABASE_URL"
         secret_name = "database-url"
@@ -125,10 +135,23 @@ resource "azurerm_container_app" "openwebui" {
       #   path = "/"
 
       # }
+
+      volume_mounts {
+        name = azurerm_container_app_environment_storage.openwebui.name
+        path = local.openwebui_data_directory
+      }
     }
 
     max_replicas = var.openwebui.replicas.max
     min_replicas = var.openwebui.replicas.min
+
+    volume {
+      name         = azurerm_container_app_environment_storage.openwebui.name
+      storage_name = azurerm_container_app_environment_storage.openwebui.name
+      storage_type = "AzureFile"
+      # REQUIRES mfsymlinks mount option set
+      # https://learn.microsoft.com/en-us/troubleshoot/azure/azure-storage/files/security/files-troubleshoot-linux-smb#cant-create-symbolic-links---ln-failed-to-create-symbolic-link-t-operation-not-supported
+    }
   }
 
   lifecycle {
@@ -137,4 +160,45 @@ resource "azurerm_container_app" "openwebui" {
       error_message = "openwebui.workload_profile_name must be one of ${format("%v", [for wp in azurerm_container_app_environment.this.workload_profile : wp.name])}"
     }
   }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Storage
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "random_id" "openwebui_storage_account" {
+  byte_length = "32"
+}
+
+resource "azurerm_storage_account" "openwebui" {
+  name = lower(format(
+    local.globalresource_standardized_name_template,
+    join("", [substr(random_id.openwebui_storage_account.hex, 0, 24 - (length(local.globalresource_standardized_name_template) + 1)), "stg"])
+  ))
+  location                 = var.region
+  resource_group_name      = var.resource_group_name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  min_tls_version = "TLS1_2"
+
+  tags = merge(
+    local.tags,
+    { applicationName = "openwebui" },
+  )
+}
+
+resource "azurerm_storage_share" "openwebui_data" {
+  name                 = "openwebui-data"
+  storage_account_name = azurerm_storage_account.openwebui.name
+  quota                = 1000
+}
+
+resource "azurerm_container_app_environment_storage" "openwebui" {
+  name                         = "openwebui-data"
+  container_app_environment_id = azurerm_container_app_environment.this.id
+  account_name                 = azurerm_storage_account.openwebui.name
+  share_name                   = azurerm_storage_share.openwebui_data.name
+  access_key                   = azurerm_storage_account.openwebui.primary_access_key
+  access_mode                  = "ReadWrite"
 }
