@@ -52,6 +52,11 @@ resource "azurerm_container_app" "openwebui" {
     }
   }
 
+  secret {
+    name  = "database-url"
+    value = "postgresql://${azurerm_postgresql_flexible_server.this.administrator_login}:${azurerm_postgresql_flexible_server.this.administrator_password}@${azurerm_postgresql_flexible_server.this.fqdn}:5432/${azurerm_postgresql_flexible_server_database.openwebui.name}?sslmode=require"
+  }
+
   tags = local.tags
 
   template {
@@ -67,7 +72,12 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
-        name = "DEFAULT_MODELS"
+        name        = "DATABASE_URL"
+        secret_name = "database-url"
+      }
+
+      env {
+        name  = "DEFAULT_MODELS"
         value = "gemma:2b"
       }
 
@@ -92,7 +102,7 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
-        name = "OPENAI_API_BASE_URL"
+        name  = "OPENAI_API_BASE_URL"
         value = "http://${azurerm_container_app.litellm.name}"
       }
 
