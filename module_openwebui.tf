@@ -83,8 +83,8 @@ module "openwebui" {
   oauth_proxy = {
     config = {
       azure_tenant_id = "d05bc194-94bf-4ad6-ae2e-1db0f2e38f5e"
-      client_id = "def7e653-d2f6-4067-91e4-f89a1eb61328"
-      client_secret = var.oauth2_proxy_client_secret
+      client_id       = "def7e653-d2f6-4067-91e4-f89a1eb61328"
+      client_secret   = var.oauth2_proxy_client_secret
       oidc_issuer_url = "https://login.microsoftonline.com/d05bc194-94bf-4ad6-ae2e-1db0f2e38f5e/v2.0"
     }
     container = {
@@ -97,7 +97,7 @@ module "openwebui" {
   }
 
   ollama = {
-    config = {}
+    config    = {}
     container = {}
   }
 
