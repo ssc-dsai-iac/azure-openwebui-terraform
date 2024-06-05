@@ -136,6 +136,111 @@ variable "environment" {
   }
 }
 
+variable "litellm" {
+  description = "Configurations for the CanChat Container App."
+  type = object({
+    config = object({
+      general_settings = optional(any, {})
+      litellm_settings = optional(any, {})
+      model_list = list(
+        object({
+          model_name     = string
+          litellm_params = optional(any, {})
+        })
+      )
+    })
+
+    container = optional(object({
+      image  = optional(string, "ghcr.io/berriai/litellm:main-v1.34.27")
+      cpu    = optional(number, 1)
+      memory = optional(string, "2Gi")
+    }), {})
+
+    environment_variables = optional(list(object({
+      name         = string
+      value        = string
+      is_sensitive = bool
+    })), [])
+
+    identities = optional(object({
+      enable_system_assigned_identity = optional(bool, false)
+      user_managed_identity_ids       = optional(list(string), [])
+    }), {})
+
+    registries = optional(list(object({
+      server               = string
+      identity_resource_id = string
+    })), [])
+
+    replicas = optional(object({
+      max = optional(number, 1)
+      min = optional(number, 1)
+    }), {})
+
+    workload_profile_name = optional(string, "Consumption")
+  })
+
+  # Config validation
+  validation {
+    condition     = var.litellm.config != null
+    error_message = "litellm.config cannot be null"
+  }
+
+  validation {
+    condition     = var.litellm.config.model_list != null
+    error_message = "litellm.config.model_list cannot be null"
+  }
+
+  validation {
+    condition     = var.litellm.config.model_list != null ? length(var.litellm.config.model_list) > 0 : false
+    error_message = "litellm.config.model_list requires at least one model"
+  }
+
+  validation {
+    condition     = var.litellm.config.model_list != null ? alltrue([for model in var.litellm.config.model_list : model.model_name != null && model.model_name != ""]) : false
+    error_message = "litellm.config.model_list.model_name cannot be null or empty"
+  }
+
+  # container validation
+  validation {
+    condition     = var.litellm.container.image != null && var.litellm.container.image != ""
+    error_message = "container.image cannot be null or empty"
+  }
+
+  # regitries validation
+  validation {
+    condition     = alltrue([for r in var.litellm.registries : r.server != null && r.server != ""])
+    error_message = "server entries in litellm.registries cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for r in var.litellm.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in litellm.registries cannot be null or empty"
+  }
+
+  # replicas validation
+  validation {
+    condition     = var.litellm.replicas.max >= 1 && var.litellm.replicas.max <= 300
+    error_message = "litellm.replicas.max must be between 1 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.litellm.replicas.min >= 0 && var.litellm.replicas.min <= 300
+    error_message = "litellm.replicas.max must be between 0 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.litellm.replicas.max >= var.litellm.replicas.min
+    error_message = "var.litellm.replicas.max must be larger or equal to var.litellm.replicas.min"
+  }
+
+  # workload_profile_name validation
+  validation {
+    condition     = var.litellm.workload_profile_name != ""
+    error_message = "litellm.workload_profile_name cannot be empty"
+  }
+}
+
 variable "oauth_proxy" {
   description = "Configurations for the oauth-proxy Container App."
   type = object({

@@ -1,3 +1,13 @@
+locals {
+  litellm_azure_api_key_env_var_name = "AZURE_API_KEY"
+  litellm_params_azure_openai = {
+    api_key     = "os.environ/${local.litellm_azure_api_key_env_var_name}"
+    api_base    = var.open_ai_host
+    max_retries = 3
+    timeout     = 5
+  }
+}
+
 module "openwebui" {
   source = "./modules/azure-openwebui-container-apps"
 
@@ -12,6 +22,47 @@ module "openwebui" {
     #   name = "test"
     #   type = "D4"
     # }]
+  }
+
+  litellm = {
+    config = {
+      litellm_settings = {
+        set_verbose = true
+      }
+      model_list = [
+        {
+          model_name = "gpt-35-turbo"
+          litellm_params = merge(
+            { model = "azure/chatgpt35" },
+            local.litellm_params_azure_openai,
+          )
+        },
+        {
+          model_name = "gpt-4"
+          litellm_params = merge(
+            { model = "azure/chatgpt4" },
+            local.litellm_params_azure_openai,
+          )
+        },
+      ]
+    }
+
+    container = {
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+
+    environment_variables = [
+      {
+        name         = local.litellm_azure_api_key_env_var_name
+        value        = var.openai_api_key
+        is_sensitive = true
+      },
+    ]
+
+    replicas = {
+      min = 1
+    }
   }
 
   oauth_proxy = {

@@ -40,3 +40,12 @@ variable "oauth2_proxy_client_secret" {
   type      = string
   sensitive = true
 }
+
+variable "openai_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "open_ai_host" {
+  type = string
+}
