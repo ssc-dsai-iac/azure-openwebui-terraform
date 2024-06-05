@@ -58,7 +58,7 @@ resource "azurerm_container_app" "openwebui" {
   }
 
   secret {
-    name = "openai-api-key"
+    name  = "openai-api-key"
     value = random_password.litellm_master_key.result
   }
 
@@ -96,10 +96,15 @@ resource "azurerm_container_app" "openwebui" {
         value = "false"
       }
 
-      # env {
-      #   name = "ENABLE_MODEL_FILTER"
-      #   value = true
-      # }
+      env {
+        name  = "ENABLE_MODEL_FILTER"
+        value = true
+      }
+
+      env {
+        name  = "GLOBAL_LOG_LEVEL"
+        value = "INFO"
+      }
 
       env {
         name  = "OLLAMA_BASE_URLS"
@@ -112,7 +117,7 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
-        name  = "OPENAI_API_KEY"
+        name        = "OPENAI_API_KEY"
         secret_name = "openai-api-key"
       }
 
@@ -121,10 +126,17 @@ resource "azurerm_container_app" "openwebui" {
         value = "X-Forwarded-Email"
       }
 
-      # liveness_probe {
-      #   path = "/"
+      liveness_probe {
+        path      = "/health"
+        port      = 8080
+        transport = "HTTP"
+      }
 
-      # }
+      readiness_probe {
+        path      = "/health"
+        port      = 8080
+        transport = "HTTP"
+      }
     }
 
     max_replicas = var.openwebui.replicas.max

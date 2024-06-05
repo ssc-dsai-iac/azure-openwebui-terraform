@@ -51,7 +51,7 @@ resource "azurerm_container_app" "litellm" {
   }
 
   secret {
-    name = "master-key"
+    name  = "master-key"
     value = random_password.litellm_master_key.result
   }
 
@@ -85,7 +85,7 @@ resource "azurerm_container_app" "litellm" {
       }
 
       env {
-        name = "LITELLM_MASTER_KEY"
+        name        = "LITELLM_MASTER_KEY"
         secret_name = "master-key"
       }
 
@@ -179,12 +179,6 @@ resource "azurerm_storage_account" "litellm" {
     { applicationName = "litellm" },
   )
 }
-
-# resource "azurerm_role_assignment" "litellm_storage_account_contributor" {
-#   role_definition_name  = "Storage Account Contributor"
-#   scope = azurerm_storage_account.litellm
-#   principal_id = data.azurerm_client_config.current.object_id
-# }
 
 resource "azurerm_storage_share" "litellm_config" {
   name                 = "litellm-config"
