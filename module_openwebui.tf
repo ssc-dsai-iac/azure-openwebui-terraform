@@ -39,6 +39,12 @@ module "openwebui" {
     tenant_id      = data.azurerm_client_config.current.tenant_id
   }
 
+  dns = {
+    zone_name                = data.azurerm_dns_zone.dsai_dns.name
+    zone_resource_group_name = data.azurerm_dns_zone.dsai_dns.resource_group_name
+    record                   = "openwebui.sandbox"
+  }
+
   litellm = {
     config = {
       litellm_settings = {
