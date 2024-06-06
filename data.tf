@@ -6,3 +6,7 @@ data "azuread_users" "canchat_admins" {
     "pascal.beaulne2@ssc-spc.gc.ca",
   ]
 }
+
+data "azurerm_dns_zone" "dsai_dns" {
+  name = "dsai-sdia.ssc-spc.cloud-nuage.canada.ca"
+}

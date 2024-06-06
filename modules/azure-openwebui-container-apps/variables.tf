@@ -195,6 +195,17 @@ variable "database" {
   }
 }
 
+variable "dns" {
+  description = "Custom DNS configurations."
+  type = object({
+    zone_name                = string
+    zone_resource_group_name = string
+    record                   = string
+  })
+
+  default = null
+}
+
 variable "litellm" {
   description = "Configurations for the CanChat Container App."
   type = object({
@@ -308,10 +319,7 @@ variable "oauth_proxy" {
       client_id            = string
       client_secret        = string
       cookie_name          = optional(string, "__Secure-OpenWebUI")
-      http_address         = optional(string, "0.0.0.0:4180")
       oidc_issuer_url      = string
-      provider             = optional(string, "azure")
-      redirect_url         = optional(string, "https://$(CONTAINER_APP_NAME).$(CONTAINER_APP_ENV_DNS_SUFFIX)/oauth2/callback")
       reverse_proxy        = optional(bool, true)
       skip_provider_button = optional(bool, true)
     })

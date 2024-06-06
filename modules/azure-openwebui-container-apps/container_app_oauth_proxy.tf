@@ -113,7 +113,7 @@ resource "azurerm_container_app" "oauth_proxy" {
 
       env {
         name  = "OAUTH2_PROXY_HTTP_ADDRESS"
-        value = var.oauth_proxy.config.http_address
+        value = "0.0.0.0:4180"
       }
 
       env {
@@ -128,12 +128,12 @@ resource "azurerm_container_app" "oauth_proxy" {
 
       env {
         name  = "OAUTH2_PROXY_PROVIDER"
-        value = var.oauth_proxy.config.provider
+        value = "azure"
       }
 
       env {
         name  = "OAUTH2_PROXY_REDIRECT_URL"
-        value = var.oauth_proxy.config.redirect_url
+        value = var.dns != null ? "https://${var.dns.record}.${var.dns.zone_name}/oauth2/callback" : "https://$(CONTAINER_APP_NAME).$(CONTAINER_APP_ENV_DNS_SUFFIX)/oauth2/callback"
       }
 
       env {
