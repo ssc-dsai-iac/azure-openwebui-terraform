@@ -33,7 +33,7 @@ resource "azurerm_container_app" "openwebui" {
 
   ingress {
     allow_insecure_connections = false
-    external_enabled           = true
+    external_enabled           = false
     target_port                = 8080
 
     # Required but only applies if `revision_mode` is `Multiple`.
