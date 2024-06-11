@@ -401,7 +401,7 @@ variable "openwebui" {
     }), {})
 
     container = optional(object({
-      image  = optional(string, "ghcr.io/open-webui/open-webui:0.2.4")
+      image  = optional(string, "ghcr.io/open-webui/open-webui:0.3.2")
       cpu    = optional(number, 1)
       memory = optional(string, "2Gi")
     }), {})
