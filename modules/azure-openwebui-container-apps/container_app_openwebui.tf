@@ -77,6 +77,11 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
+        name  = "DEFAULT_USER_ROLE"
+        value = "user"
+      }
+
+      env {
         name        = "DATABASE_URL"
         secret_name = "database-url"
       }
@@ -128,22 +133,22 @@ resource "azurerm_container_app" "openwebui" {
 
       # Image Generation
       env {
-        name = "ENABLE_IMAGE_GENERATION"
+        name  = "ENABLE_IMAGE_GENERATION"
         value = true
       }
 
       env {
-        name = "IMAGE_GENERATION_ENGINE"
+        name  = "IMAGE_GENERATION_ENGINE"
         value = "openai"
       }
 
       env {
-        name = "IMAGES_OPENAI_API_KEY"
+        name        = "IMAGES_OPENAI_API_KEY"
         secret_name = "openai-api-key"
       }
 
       env {
-        name = "IMAGES_OPENAI_API_BASE_URL"
+        name  = "IMAGES_OPENAI_API_BASE_URL"
         value = "http://${azurerm_container_app.litellm.name}"
       }
 

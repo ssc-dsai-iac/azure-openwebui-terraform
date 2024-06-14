@@ -1,8 +1,8 @@
 locals {
   litellm_azure_api_key_env_var_name = "AZURE_API_KEY"
   litellm_params_azure_openai = {
-    api_key     = "os.environ/${local.litellm_azure_api_key_env_var_name}"
-    api_base    = var.open_ai_host
+    api_key  = "os.environ/${local.litellm_azure_api_key_env_var_name}"
+    api_base = var.open_ai_host
     # max_retries = 3
     # timeout     = 5
   }
