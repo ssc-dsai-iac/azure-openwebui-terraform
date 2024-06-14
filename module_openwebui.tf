@@ -73,7 +73,7 @@ module "openwebui" {
             api_base        = "https://scsccps-dsai-lab-dev-eastus-oai.openai.azure.com/"
             api_version     = "2023-07-01-preview"
             base_model      = "dall-e-2" # Trick to prevent cost-tracking error.
-            response_format = "b64_json"
+            # response_format = "b64_json"
           }
           model_info = {
             mode = "image_generation"
@@ -87,7 +87,7 @@ module "openwebui" {
             api_base        = "https://scsccps-dsai-lab-dev-eastus-oai.openai.azure.com/"
             api_version     = "2023-07-01-preview"
             base_model      = "dall-e-2" # Trick to prevent cost-tracking error.
-            response_format = "b64_json"
+            # response_format = "b64_json"
           }
           model_info = {
             mode = "image_generation"
