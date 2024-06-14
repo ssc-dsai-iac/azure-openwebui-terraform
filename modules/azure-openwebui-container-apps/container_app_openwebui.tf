@@ -98,7 +98,7 @@ resource "azurerm_container_app" "openwebui" {
 
       env {
         name  = "ENABLE_MODEL_FILTER"
-        value = true
+        value = false
       }
 
       env {
@@ -124,6 +124,27 @@ resource "azurerm_container_app" "openwebui" {
       env {
         name  = "WEBUI_AUTH_TRUSTED_EMAIL_HEADER"
         value = "X-Forwarded-Email"
+      }
+
+      # Image Generation
+      env {
+        name = "ENABLE_IMAGE_GENERATION"
+        value = true
+      }
+
+      env {
+        name = "IMAGE_GENERATION_ENGINE"
+        value = "openai"
+      }
+
+      env {
+        name = "IMAGES_OPENAI_API_KEY"
+        secret_name = "openai-api-key"
+      }
+
+      env {
+        name = "IMAGES_OPENAI_API_BASE_URL"
+        value = "http://${azurerm_container_app.litellm.name}"
       }
 
       liveness_probe {

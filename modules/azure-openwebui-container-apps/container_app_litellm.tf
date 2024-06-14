@@ -191,6 +191,7 @@ resource "azurerm_storage_share_file" "litellm_config" {
   storage_share_id = azurerm_storage_share.litellm_config.id
   source           = local_file.litellm_config.filename
   content_md5      = md5(local_file.litellm_config.content)
+  content_type     = "application/json"
 }
 
 resource "azurerm_container_app_environment_storage" "litellm" {

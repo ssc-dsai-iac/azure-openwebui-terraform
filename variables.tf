@@ -49,3 +49,8 @@ variable "openai_api_key" {
 variable "open_ai_host" {
   type = string
 }
+
+variable "openai_east_us_api_key" {
+  type      = string
+  sensitive = true
+}

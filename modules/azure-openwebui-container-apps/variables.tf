@@ -216,12 +216,13 @@ variable "litellm" {
         object({
           model_name     = string
           litellm_params = optional(any, {})
+          model_info     = optional(any, {})
         })
       )
     })
 
     container = optional(object({
-      image  = optional(string, "ghcr.io/berriai/litellm:main-v1.34.27")
+      image  = optional(string, "ghcr.io/berriai/litellm:main-v1.40.12")
       cpu    = optional(number, 1)
       memory = optional(string, "2Gi")
     }), {})
@@ -401,7 +402,7 @@ variable "openwebui" {
     }), {})
 
     container = optional(object({
-      image  = optional(string, "ghcr.io/open-webui/open-webui:0.3.2")
+      image  = optional(string, "ghcr.io/open-webui/open-webui:0.3.4")
       cpu    = optional(number, 1)
       memory = optional(string, "2Gi")
     }), {})

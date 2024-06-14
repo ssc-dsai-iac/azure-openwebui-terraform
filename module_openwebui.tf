@@ -3,8 +3,8 @@ locals {
   litellm_params_azure_openai = {
     api_key     = "os.environ/${local.litellm_azure_api_key_env_var_name}"
     api_base    = var.open_ai_host
-    max_retries = 3
-    timeout     = 5
+    # max_retries = 3
+    # timeout     = 5
   }
 
   canchat_db_admins = [for admin in data.azuread_users.canchat_admins.users :
@@ -65,6 +65,32 @@ module "openwebui" {
             local.litellm_params_azure_openai,
           )
         },
+        {
+          model_name = "dall-e-3"
+          litellm_params = {
+            model       = "azure/Dall3"
+            api_key     = "os.environ/AZURE_EAST_US_API_KEY"
+            api_base    = "https://scsccps-dsai-lab-dev-eastus-oai.openai.azure.com/"
+            api_version = "2023-07-01-preview"
+            base_model  = "dall-e-2" # Trick to prevent cost-tracking error.
+          }
+          model_info = {
+            mode = "image_generation"
+          }
+        },
+        {
+          model_name = "dall-e-2"
+          litellm_params = {
+            model       = "azure/Dall2"
+            api_key     = "os.environ/AZURE_EAST_US_API_KEY"
+            api_base    = "https://scsccps-dsai-lab-dev-eastus-oai.openai.azure.com/"
+            api_version = "2023-07-01-preview"
+            base_model  = "dall-e-2" # Trick to prevent cost-tracking error.
+          }
+          model_info = {
+            mode = "image_generation"
+          }
+        },
       ]
     }
 
@@ -77,6 +103,11 @@ module "openwebui" {
       {
         name         = local.litellm_azure_api_key_env_var_name
         value        = var.openai_api_key
+        is_sensitive = true
+      },
+      {
+        name         = "AZURE_EAST_US_API_KEY"
+        value        = var.openai_east_us_api_key
         is_sensitive = true
       },
     ]
