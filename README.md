@@ -40,6 +40,7 @@
 | <a name="input_oauth2_proxy_client_secret"></a> [oauth2\_proxy\_client\_secret](#input\_oauth2\_proxy\_client\_secret) | n/a | `string` | n/a | yes |
 | <a name="input_open_ai_host"></a> [open\_ai\_host](#input\_open\_ai\_host) | n/a | `string` | n/a | yes |
 | <a name="input_openai_api_key"></a> [openai\_api\_key](#input\_openai\_api\_key) | n/a | `string` | n/a | yes |
+| <a name="input_openai_east_us_api_key"></a> [openai\_east\_us\_api\_key](#input\_openai\_east\_us\_api\_key) | n/a | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | n/a | `string` | n/a | yes |
 
 ## Outputs
