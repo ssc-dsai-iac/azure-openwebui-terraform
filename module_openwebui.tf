@@ -133,7 +133,7 @@ module "openwebui" {
 
   openwebui = {
     container =  {
-      image = "docker.io/justmbert/open-webui:0.3.4-dalle-url"
+      image = "docker.io/justmbert/open-webui:0.3.4-logo"
     }
   }
 
