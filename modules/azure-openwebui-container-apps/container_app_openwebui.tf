@@ -72,6 +72,11 @@ resource "azurerm_container_app" "openwebui" {
       memory = var.openwebui.container.memory
 
       env {
+        name  = "WEBUI_NAME"
+        value = "CANChat"
+      }
+
+      env {
         name  = "CUSTOM_NAME"
         value = "CANChatUI"
       }
