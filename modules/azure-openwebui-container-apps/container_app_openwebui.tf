@@ -136,6 +136,11 @@ resource "azurerm_container_app" "openwebui" {
         value = "X-Forwarded-Email"
       }
 
+      env {
+        name = "WEBUI_AUTH_TRUSTED_NAME_HEADER"
+        value = "X-Forwarded-User"
+      }
+
       # Image Generation
       env {
         name  = "ENABLE_IMAGE_GENERATION"
