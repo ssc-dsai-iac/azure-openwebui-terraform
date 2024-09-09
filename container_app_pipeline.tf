@@ -14,7 +14,7 @@ resource "azurerm_container_app" "pipeline" {
 
   dynamic "identity" {
     for_each = (var.pipeline.identities.enable_system_assigned_identity ||
-      length(var.pipeline.identities.user_managed_identity_ids) > 0 || 
+      length(var.pipeline.identities.user_managed_identity_ids) > 0 ||
       length(var.pipeline.registries) > 0) ? [
       {
         system_assigned = var.pipeline.identities.enable_system_assigned_identity
@@ -89,17 +89,17 @@ resource "azurerm_container_app" "pipeline" {
       }
 
 
-    #   liveness_probe {
-    #     path      = "/health"
-    #     port      = 9099
-    #     transport = "HTTP"
-    #   }
+      #   liveness_probe {
+      #     path      = "/health"
+      #     port      = 9099
+      #     transport = "HTTP"
+      #   }
 
-    #   readiness_probe {
-    #     path      = "/health"
-    #     port      = 9099
-    #     transport = "HTTP"
-    #   }
+      #   readiness_probe {
+      #     path      = "/health"
+      #     port      = 9099
+      #     transport = "HTTP"
+      #   }
     }
 
     max_replicas = var.pipeline.replicas.max
