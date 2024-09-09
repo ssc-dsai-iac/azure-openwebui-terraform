@@ -5,7 +5,7 @@ locals {}
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "azurerm_container_app" "pipeline" {
-  name                         = lower(replace(format(local.standardized_name_template, "", "", "ca"), "_", "-"))
+  name                         = lower(replace(format(local.standardized_name_template, "", "-pipelines", "ca"), "_", "-"))
   container_app_environment_id = azurerm_container_app_environment.this.id
   resource_group_name          = var.resource_group_name
   revision_mode                = "Single"
