@@ -567,3 +567,93 @@ variable "ollama" {
     error_message = "ollama.workload_profile_name cannot be empty"
   }
 }
+
+variable "qdrant" {
+  description = "Configurations for the qdrant Container App."
+  type = object({
+    config = optional(object({
+      log_level = optional(string, "INFO")
+      service = optional(object({
+        max_request_size_mb = optional(number, 32)
+      }), {})
+    }), {})
+
+    container = optional(object({
+      image  = optional(string, "docker.io/qdrant/qdrant:v1.11.3-unprivileged")
+      cpu    = optional(number, 1)
+      memory = optional(string, "2Gi")
+    }), {})
+
+    identities = optional(object({
+      enable_system_assigned_identity = optional(bool, false)
+      user_managed_identity_ids       = optional(list(string), [])
+    }), {})
+
+    registries = optional(list(object({
+      server               = string
+      identity_resource_id = string
+    })), [])
+
+    replicas = optional(object({
+      max = optional(number, 1)
+      min = optional(number, 1)
+    }), {})
+
+    workload_profile_name = optional(string, "Consumption")
+  })
+
+  # Config validation
+  validation {
+    condition     = var.qdrant.config != null
+    error_message = "qdrant.config cannot be null"
+  }
+
+  validation {
+    condition     = var.qdrant.config.log_level != null ? contains(["ERROR", "WARN", "INFO", "DEBUG", "TRACE"], var.qdrant.config.log_level) : false
+    error_message = "qdrant.config.log_level must not be null and must be one of ${format("%v", ["ERROR", "WARN", "INFO", "DEBUG", "TRACE"])}"
+  }
+
+  validation {
+    condition     = var.qdrant.config.service.max_request_size_mb > 0
+    error_message = "qdrant.config.service.max_request_size_mb must be larger than 0"
+  }
+
+  # container validation
+  validation {
+    condition     = var.qdrant.container.image != ""
+    error_message = "container.image cannot be null or empty"
+  }
+
+  # regitries validation
+  validation {
+    condition     = alltrue([for r in var.qdrant.registries : r.server != null && r.server != ""])
+    error_message = "server entries in qdrant.registries cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for r in var.qdrant.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in qdrant.registries cannot be null or empty"
+  }
+
+  # replicas validation
+  validation {
+    condition     = var.qdrant.replicas.max >= 1 && var.qdrant.replicas.max <= 300
+    error_message = "qdrant.replicas.max must be between 1 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.qdrant.replicas.min >= 0 && var.qdrant.replicas.min <= 300
+    error_message = "qdrant.replicas.max must be between 0 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.qdrant.replicas.max >= var.qdrant.replicas.min
+    error_message = "var.qdrant.replicas.max must be larger or equal to var.qdrant.replicas.min"
+  }
+
+  # workload_profile_name validation
+  validation {
+    condition     = var.qdrant.workload_profile_name != ""
+    error_message = "qdrant.workload_profile_name cannot be empty"
+  }
+}
