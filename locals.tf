@@ -1,7 +1,11 @@
 locals {
-  tags = {
-    configurationSource = "https://github.com/ssc-dsai-iac/azure-openwebui-terraform"
-  }
+  tags = merge(
+    var.tags,
+    {
+      moduleVersion = "0.1",
+      moduleSource  = "https://github.com/ssc-dsai-iac/azure-openwebui-terraform/blob/main/modules/azure-openwebui-container-apps"
+    }
+  )
 
   # The standardized naming convention template to be used for naming resources.
   # It can be used in the following manner:
@@ -36,5 +40,5 @@ locals {
     }, var.naming.environment, "")}${lookup({
     "Canada Central" = "c",
     "Canada East"    = "d",
-  }, var.region, "")}${substr(replace(join("", [var.naming.group, var.naming.user_defined]), "_", ""), 0, 12)}%s"
+  }, var.region, "")}${substr(replace(replace(join("", [var.naming.group, var.naming.user_defined]), "_", ""), "-", ""), 0, 12)}%s"
 }
