@@ -137,7 +137,7 @@ resource "azurerm_container_app" "openwebui" {
       }
 
       env {
-        name = "WEBUI_AUTH_TRUSTED_NAME_HEADER"
+        name  = "WEBUI_AUTH_TRUSTED_NAME_HEADER"
         value = "X-Forwarded-User"
       }
 
