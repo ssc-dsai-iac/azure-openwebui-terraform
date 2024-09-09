@@ -657,3 +657,95 @@ variable "qdrant" {
     error_message = "qdrant.workload_profile_name cannot be empty"
   }
 }
+
+variable "pipeline" {
+  description = "Configurations for the pipeline Container App."
+  type = object({
+    config = optional(object({
+    }), {})
+
+    container = optional(object({
+      image  = optional(string, "ghcr.io/open-webui/pipelines:main")
+      cpu    = optional(number, 1)
+      memory = optional(string, "2Gi")
+    }), {})
+
+    environment_variables = optional(list(object({
+      name         = string
+      value        = string
+      is_sensitive = bool
+    })), [])
+
+    identities = optional(object({
+      enable_system_assigned_identity = optional(bool, false)
+      user_managed_identity_ids       = optional(list(string), [])
+    }), {})
+
+    registries = optional(list(object({
+      server               = string
+      identity_resource_id = string
+    })), [])
+
+    replicas = optional(object({
+      max = optional(number, 1)
+      min = optional(number, 1)
+    }), {})
+
+    workload_profile_name = optional(string, "Consumption")
+  })
+
+  # Config validation
+  validation {
+    condition     = var.pipeline.config != null
+    error_message = "pipeline.config cannot be null"
+  }
+
+  validation {
+    condition     = var.pipeline.config.log_level != null ? contains(["ERROR", "WARN", "INFO", "DEBUG", "TRACE"], var.pipeline.config.log_level) : false
+    error_message = "pipeline.config.log_level must not be null and must be one of ${format("%v", ["ERROR", "WARN", "INFO", "DEBUG", "TRACE"])}"
+  }
+
+  validation {
+    condition     = var.pipeline.config.service.max_request_size_mb > 0
+    error_message = "pipeline.config.service.max_request_size_mb must be larger than 0"
+  }
+
+  # container validation
+  validation {
+    condition     = var.pipeline.container.image != ""
+    error_message = "container.image cannot be null or empty"
+  }
+
+  # regitries validation
+  validation {
+    condition     = alltrue([for r in var.pipeline.registries : r.server != null && r.server != ""])
+    error_message = "server entries in pipeline.registries cannot be null or empty"
+  }
+
+  validation {
+    condition     = alltrue([for r in var.pipeline.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
+    error_message = "identity_resource_id entries in pipeline.registries cannot be null or empty"
+  }
+
+  # replicas validation
+  validation {
+    condition     = var.pipeline.replicas.max >= 1 && var.pipeline.replicas.max <= 300
+    error_message = "pipeline.replicas.max must be between 1 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.pipeline.replicas.min >= 0 && var.pipeline.replicas.min <= 300
+    error_message = "pipeline.replicas.max must be between 0 and 300 (inclusive)"
+  }
+
+  validation {
+    condition     = var.pipeline.replicas.max >= var.pipeline.replicas.min
+    error_message = "var.pipeline.replicas.max must be larger or equal to var.pipeline.replicas.min"
+  }
+
+  # workload_profile_name validation
+  validation {
+    condition     = var.pipeline.workload_profile_name != ""
+    error_message = "pipeline.workload_profile_name cannot be empty"
+  }
+}
