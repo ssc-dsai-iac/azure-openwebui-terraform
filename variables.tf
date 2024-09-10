@@ -700,16 +700,6 @@ variable "pipeline" {
     error_message = "pipeline.config cannot be null"
   }
 
-  validation {
-    condition     = var.pipeline.config.log_level != null ? contains(["ERROR", "WARN", "INFO", "DEBUG", "TRACE"], var.pipeline.config.log_level) : false
-    error_message = "pipeline.config.log_level must not be null and must be one of ${format("%v", ["ERROR", "WARN", "INFO", "DEBUG", "TRACE"])}"
-  }
-
-  validation {
-    condition     = var.pipeline.config.service.max_request_size_mb > 0
-    error_message = "pipeline.config.service.max_request_size_mb must be larger than 0"
-  }
-
   # container validation
   validation {
     condition     = var.pipeline.container.image != ""
