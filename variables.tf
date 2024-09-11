@@ -683,7 +683,7 @@ variable "pipeline" {
 
     registries = optional(list(object({
       server               = string
-      identity_resource_id = string
+      identity_resource_id = optional(string, "")
       username             = optional(string, "")
       password_secret_name = optional(string, "")
     })), [])
@@ -715,8 +715,13 @@ variable "pipeline" {
   }
 
   validation {
-    condition     = alltrue([for r in var.pipeline.registries : r.identity_resource_id != null && r.identity_resource_id != ""])
-    error_message = "identity_resource_id entries in pipeline.registries cannot be null or empty"
+    condition = alltrue([
+      for r in var.pipeline.registries : (
+        (r.identity_resource_id != null && r.identity_resource_id != "") ||
+        ((r.username != null && r.username != "") && (r.password_secret_name != null && r.password_secret_name != ""))
+      )
+    ])
+    error_message = "Each registry must have either an 'identity_resource_id' or both 'username' and 'password_secret_name'."
   }
 
   # replicas validation

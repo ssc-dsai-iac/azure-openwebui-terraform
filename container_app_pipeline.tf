@@ -47,10 +47,10 @@ resource "azurerm_container_app" "pipeline" {
     for_each = var.pipeline.registries
 
     content {
-      server                = registry.value.server
-      identity              = registry.value.identity_resource_id
-      username              = registry.value.username
-      password_secret_name  = registry.value.password_secret_name
+      server               = registry.value.server
+      identity             = registry.value.identity_resource_id
+      username             = registry.value.username
+      password_secret_name = registry.value.password_secret_name
     }
   }
 
