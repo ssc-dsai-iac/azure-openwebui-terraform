@@ -684,6 +684,8 @@ variable "pipeline" {
     registries = optional(list(object({
       server               = string
       identity_resource_id = string
+      username             = optional(string, "")
+      password_secret_name = optional(string, "")
     })), [])
 
     replicas = optional(object({
