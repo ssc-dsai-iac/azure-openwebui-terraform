@@ -44,11 +44,19 @@ resource "azurerm_container_app" "pipeline" {
   }
 
   dynamic "registry" {
-    for_each = var.pipeline.registries
+    for_each = [for r in var.pipeline.registries : r if r.identity_resource_id != null && r.identity_resource_id != ""]
+
+    content {
+      server   = registry.value.server
+      identity = registry.value.identity_resource_id
+    }
+  }
+
+  dynamic "registry" {
+    for_each = [for r in var.pipeline.registries : r if r.identity_resource_id == null || r.identity_resource_id == ""]
 
     content {
       server               = registry.value.server
-      identity             = registry.value.identity_resource_id
       username             = registry.value.username
       password_secret_name = registry.value.password_secret_name
     }
