@@ -44,7 +44,7 @@ resource "azurerm_container_app" "pipeline" {
   }
 
   dynamic "registry" {
-    for_each = [for r in var.pipeline.registries : r if r.identity_resource_id != null && r.identity_resource_id != ""]
+    for_each = [for registry in var.pipeline.registries : registry if registry.identity_resource_id != null && registry.identity_resource_id != ""]
 
     content {
       server   = registry.value.server
@@ -53,7 +53,7 @@ resource "azurerm_container_app" "pipeline" {
   }
 
   dynamic "registry" {
-    for_each = [for r in var.pipeline.registries : r if r.identity_resource_id == null || r.identity_resource_id == ""]
+    for_each = [for registry in var.pipeline.registries : registry if registry.identity_resource_id == null || registry.identity_resource_id == ""]
 
     content {
       server               = registry.value.server
