@@ -20,7 +20,7 @@ resource "azurerm_container_app" "pipeline" {
         system_assigned = var.pipeline.identities.enable_system_assigned_identity
         # Any identity used to access a registry must also be assigned to the App
         user_managed_identity_ids = toset(concat(
-          var.pipeline.identities.user_managed_identity_ids, 
+          var.pipeline.identities.user_managed_identity_ids,
           [for r in var.pipeline.registries : r.identity_resource_id if can(r.identity_resource_id) && r.identity_resource_id != ""]
         ))
       }
