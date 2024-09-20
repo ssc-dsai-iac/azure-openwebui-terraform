@@ -113,10 +113,21 @@ resource "azurerm_container_app" "pipeline" {
       #     port      = 9099
       #     transport = "HTTP"
       #   }
+      
+      volume_mounts {
+        name = "model-cache"
+        path = "/model-cache"
+      }
     }
 
     max_replicas = var.pipeline.replicas.max
     min_replicas = var.pipeline.replicas.min
+
+    volume {
+      name         = "model-cache"
+      storage_name = azurerm_container_app_environment_storage.pipeline.name
+      storage_type = "AzureFile"
+    }
 
   }
 
@@ -126,4 +137,45 @@ resource "azurerm_container_app" "pipeline" {
       error_message = "pipeline.workload_profile_name must be one of ${format("%v", [for wp in azurerm_container_app_environment.this.workload_profile : wp.name])}"
     }
   }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Storage
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "random_id" "pipeline_storage_account" {
+  byte_length = "32"
+}
+
+resource "azurerm_storage_account" "pipeline" {
+  name = lower(format(
+    local.globalresource_standardized_name_template,
+    join("", [substr(random_id.pipeline_storage_account.hex, 0, 24 - (length(local.globalresource_standardized_name_template) + 1)), "stg"])
+  ))
+  location                 = var.region
+  resource_group_name      = var.resource_group_name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  min_tls_version = "TLS1_2"
+
+  tags = merge(
+    local.tags,
+    { applicationName = "pipeline" },
+  )
+}
+
+resource "azurerm_storage_share" "pipeline" {
+  name                 = "model-cache"
+  storage_account_name = azurerm_storage_account.pipeline.name
+  quota                = 1000
+}
+
+resource "azurerm_container_app_environment_storage" "pipeline" {
+  name                         = "model-cache"
+  container_app_environment_id = azurerm_container_app_environment.this.id
+  account_name                 = azurerm_storage_account.pipeline.name
+  share_name                   = azurerm_storage_share.pipeline.name
+  access_key                   = azurerm_storage_account.pipeline.primary_access_key
+  access_mode                  = "ReadWrite"
 }
