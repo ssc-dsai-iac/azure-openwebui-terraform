@@ -116,7 +116,7 @@ resource "azurerm_container_app" "pipeline" {
       
       volume_mounts {
         name = "model-cache"
-        path = "/model-cache"
+        path = "/app/model-cache"
       }
     }
 
